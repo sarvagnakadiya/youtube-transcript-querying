@@ -1,81 +1,112 @@
-# YouTube Video Transcript Retrieval and Query Project
+# YouTube Video Transcript Retrieval and Query Notebook
 
-![YouTube Video Transcript](https://example.com/video_thumbnail.png)
+This Jupyter notebook provides a step-by-step guide on how to retrieve and query YouTube video transcripts using ThirdAI and OpenAI's GeneralQnA models. The notebook demonstrates how to extract video transcripts, set up APIs, query the models, and obtain insightful answers.
 
-Welcome to the YouTube Video Transcript Retrieval and Query Project! This project aims to help you extract transcripts from YouTube videos and then query them using both ThirdAI and OpenAI's GeneralQnA models to get insightful answers.
+## Prerequisites
 
-## Project Overview
+Before running this notebook, make sure you have the necessary libraries and APIs installed. You can install the required packages using the following commands:
 
-The primary goal of this project is to provide a user-friendly interface to:
+```python
+!pip install youtube-transcript-api
+!pip install pytube
+!pip install langchain
+!pip install openai
+!pip install reportlab
+```
 
-1. Extract the transcript of a YouTube video.
-2. Use ThirdAI to answer specific questions related to the video's content.
-3. Use OpenAI's GeneralQnA model to get additional answers to your queries.
+Additionally, you'll need API keys for ThirdAI and OpenAI. Replace the placeholders in the code with your actual API keys.
 
-## How to Use
+## Setup ThirdAI API
 
-To get started, follow these steps:
+```python
+from thirdai import licensing, neural_db as ndb
 
-1. **Clone the Repository:**
-   Clone this repository to your local machine using the following command:
+# licensing.deactivate()
+licensing.activate("1FB7DD-CAC3EC-832A67-84208D-C4E39E-V3")
+db = ndb.NeuralDB(user_id="my_user")
 
-   ```
-   git clone https://github.com/sarvagnakadiya/youtube-transcript-querying
-   ```
+# Set up a cache directory for Bazaar models
+import os
+from pathlib import Path
+from thirdai.neural_db import Bazaar
 
-2. **Install Dependencies:**
-   Navigate to the project directory and install the required dependencies:
+if not os.path.isdir("bazaar_cache"):
+    os.mkdir("bazaar_cache")
 
-   ```
-   cd YouTubeTranscriptQuery
-   pip install -r requirements.txt
-   ```
+bazaar = Bazaar(cache_dir=Path("bazaar_cache"))
+bazaar.fetch()
+print(bazaar.list_model_names())
 
-3. **Get YouTube API Key:**
-   In order to extract video transcripts, you'll need a YouTube Data API Key. Get your API key by following the instructions [here](https://developers.google.com/youtube/registering_an_application).
+# Load the General QnA model
+db = bazaar.get_model("General QnA")
+```
 
-4. **Set Up ThirdAI API:**
-   Sign up for ThirdAI and get your API key from their website (https://thirdai.com).
+## Extract YouTube Video Transcript
 
-5. **Set Up OpenAI API:**
-   Obtain your OpenAI API key from the OpenAI developer portal (https://openai.com/).
+The following function can be used to fetch the transcript of a YouTube video given its URL:
 
-6. **Configure the Environment:**
-   Create a new file named `.env` in the project root and add your API keys to it:
+```python
+def get_youtube_transcript(youtube_url, language=["en"], translation="en"):
+    # Fetch the transcript using YouTubeTranscriptApi
+    try:
+        transcript = YouTubeTranscriptApi.get_transcript(youtube_url, languages=language)
+    except Exception as e:
+        raise ValueError(f"Error fetching captions: {str(e)}")
 
-   ```
-   YOUTUBE_API_KEY=your_youtube_api_key
-   THIRDAI_API_KEY=your_thirdai_api_key
-   OPENAI_API_KEY=your_openai_api_key
-   ```
+    # Combine the transcript text
+    text_data = " ".join([caption['text'] for caption in transcript])
+    return text_data
+```
 
-7. **Run the Application:**
-   Launch the application by running the following command:
+## Query with ThirdAI
 
-   ```
-   python app.py
-   ```
+Use the following function to query the video transcript using ThirdAI's General QnA model:
 
-8. **Using the Application:**
-   - Enter the YouTube video URL you want to analyze.
-   - The application will extract the transcript for you.
-   - Enter your questions related to the video's content.
-   - The application will provide answers using both ThirdAI and OpenAI's GeneralQnA models.
+```python
+def query_youtube_transcript(youtube_url, language=["en"], translation="en", query=""):
+    transcript_text = get_youtube_transcript(youtube_url, language, translation)
+    result = db.search(
+        query=transcript_text + query,
+        top_k=1,
+        on_error=lambda error_msg: print(f"Error! {error_msg}")
+    )
+    return result[0].text
+```
 
-## Disclaimer
+## Query with OpenAI (GeneralQnA)
 
-This project is developed for educational and demonstration purposes only. The accuracy of the answers provided by ThirdAI and OpenAI's GeneralQnA models depends on the quality of the models and the data they are trained on. Keep in mind that the models might not always provide accurate or reliable answers.
+The notebook also demonstrates how to use OpenAI's GeneralQnA model for querying the transcript:
 
-## Contributions
+```python
+# Replace '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' with your OpenAI API key
+openai.api_key = "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"
 
-Contributions to this project are welcome! If you find any issues or have suggestions for improvement, feel free to create a pull request or open an issue.
+def query_youtube_transcript_openai(youtube_url, language=["en"], translation="en", query=""):
+    transcript_text = get_youtube_transcript(youtube_url, language, translation)
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=transcript_text + query,
+        max_tokens=150,
+    )
+    return response.choices[0].text.strip()
+```
 
-## License
+## Example Queries
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+You can now use the functions to query the transcript and get answers. For example:
 
-## Acknowledgments
+```python
+youtube_url = "mbryl4MZJms"
 
-We would like to express our gratitude to ThirdAI and OpenAI for providing their powerful language models and APIs for this project.
+query_1 = "which software is being used, and which version is being used?"
+response_1 = query_youtube_transcript(youtube_url, query=query_1)
+print(response_1)
 
-Enjoy using the YouTube Video Transcript Retrieval and Query Project! If you have any questions or need assistance, please don't hesitate to contact us. Happy querying!
+query_2 = "Tell me about the main points discussed in the video."
+response_2 = query_youtube_transcript(youtube_url, query=query_2)
+print(response_2)
+```
+
+## Note
+
+Please note that this notebook uses both ThirdAI and OpenAI's GeneralQnA models. Ensure that you have the necessary API keys and credits to access the models. It is also recommended to follow the API usage guidelines and terms of service for both providers.

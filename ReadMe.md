@@ -2,6 +2,34 @@
 
 This Jupyter notebook provides a step-by-step guide on how to retrieve and query YouTube video transcripts using ThirdAI and OpenAI's GeneralQnA models. The notebook demonstrates how to extract video transcripts, set up APIs, query the models, and obtain insightful answers.
 
+# UseCase
+
+**Real-Life Example 1 - Recipe Tutorial:**
+
+Imagine you are a passionate home cook looking to try out a new recipe for a mouthwatering lasagna dish. You find an engaging lasagna recipe tutorial on YouTube, but the video is quite long, and you want to quickly gather key details before you start cooking.
+
+Using the YouTube Video Transcript and Querying project, you input the video ID of the lasagna recipe tutorial and query the transcript for specific details. You enter queries like:
+
+1. "What are the ingredients needed for the lasagna?"
+2. "How long should the lasagna bake in the oven?"
+3. "Any special tips for achieving the best taste?"
+
+The project fetches the video transcript and extracts the relevant information from the queries you entered. In just a few moments, you receive a PDF summary containing the list of ingredients, baking time, and the chef's special tips for making the perfect lasagna. Now you have all the information you need at your fingertips, and you can confidently start cooking your delicious lasagna without watching the entire video.
+
+**Real-Life Example 2 - Coding Tutorial:**
+
+As a budding programmer, you enjoy learning new programming concepts by watching coding tutorials on YouTube. Recently, you came across a comprehensive Python programming tutorial that covers a range of topics, including installing Python and using IDEs.
+
+Since the tutorial is quite lengthy, you use the YouTube Video Transcript and Querying project to extract key points and get answers to your programming questions. You enter queries like:
+
+1. "How do I install Python on Windows?"
+2. "Which IDE is recommended for Python development?"
+3. "Can I use Python for scientific calculations?"
+
+The project fetches the video transcript and provides you with the specific answers to your queries. You receive a PDF summary with step-by-step instructions on installing Python, a recommendation for a Python IDE, and information about Python's applications in scientific calculations. Now you have a concise summary of the essential points covered in the tutorial, and you can use it as a reference while practicing Python coding.
+
+These real-life examples demonstrate how the YouTube Video Transcript and Querying project can save time, provide targeted information, and enhance the learning experience for both cooking enthusiasts and aspiring programmers. It allows users to make the most out of tutorial videos without the need to watch the entire content, making the learning process more efficient and enjoyable.
+
 ## Prerequisites
 
 Before running this notebook, make sure you have the necessary libraries and APIs installed. You can install the required packages using the following commands:
